@@ -1,47 +1,57 @@
-from flask import Flask,render_template,request
+from flask import Flask, render_template, request
 from openpyxl import load_workbook
+import os
 
 app = Flask(__name__)
 
-
+# Home Page
 @app.route('/')
 def home():
     return render_template("index.html")
 
 
+# Rooms Page
 @app.route('/rooms')
 def rooms():
     return render_template("rooms.html")
 
 
-@app.route('/booking',methods=['GET','POST'])
+# Booking Page
+@app.route('/booking', methods=['GET','POST'])
 def booking():
 
-    if request.method=='POST':
+    if request.method == 'POST':
 
-        name=request.form['name']
-        phone=request.form['phone']
-        room=request.form['room']
-        date=request.form['date']
-        payment=request.form['payment']
+        name = request.form['name']
+        phone = request.form['phone']
+        room = request.form['room']
+        date = request.form['date']
+        payment = request.form['payment']
 
-        file=load_workbook("hoteldata.xlsx")
-        sheet=file.active
+        # Get correct path for Render hosting
+        filepath = os.path.join(os.getcwd(), "hoteldata.xlsx")
 
-        sheet.append([name,phone,room,date,payment])
+        # Load Excel file
+        file = load_workbook(filepath)
+        sheet = file.active
 
-        file.save("hoteldata.xlsx")
+        # Add new booking row
+        sheet.append([name, phone, room, date, payment])
 
-        return "<h2>Booking Successful</h2><a href='/'>Home</a>"
+        # Save file
+        file.save(filepath)
+
+        return "<h2>Booking Successful</h2><a href='/'>Go Home</a>"
 
     return render_template("booking.html")
 
 
+# Contact Page
 @app.route('/contact')
 def contact():
     return render_template("contact.html")
 
 
+# IMPORTANT for Render hosting
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=10000)
-
+    app.run()
